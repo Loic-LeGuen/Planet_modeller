@@ -13,9 +13,7 @@ const PlanetSchema = new mongoose.Schema({
         max:[25,"Largest size allowed is 25"]
     },
     designation:{
-        type:String,
-        designation:String,
-        required:[true,"Designation is required"],
+        type:Array,
     },
     industrial_districts:{
         type:Number,
