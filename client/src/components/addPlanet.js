@@ -10,9 +10,8 @@ const AddPlanet = (props) => {
     const [generator_districts, setGenerator_districts] = useState(0);
     const [agriculture_districts, setAgriculture_districts] = useState(0);
     const [industrial_districts, setIndustrial_districts] = useState(0);
-    const [total_districts, setTotal_districts] = useState(0);
     const totalDistricts = parseInt(industrial_districts)+parseInt(mining_districts)+parseInt(generator_districts)+parseInt(agriculture_districts)
-    const openDistricts = parseInt(size)-parseInt(totalDistricts)
+
     
     
     // ARRAY KEY FOR DESIGNATION MODIFIERS
@@ -24,26 +23,70 @@ const AddPlanet = (props) => {
     const food = agriculture_districts*2*6*designation[2];
     const consumer_goods=industrial_districts*2*6*designation[3];
     const alloys = industrial_districts*2*3*designation[4];
-    
-    console.log('total districts',totalDistricts);
-    console.log('open districts',openDistricts);
+
+
+    // Front-end error messages
+
+    const [miningError, setMiningError] = useState('');
+    const [genError, setGenError] = useState('');
+    const [agriError, setAgriError] = useState('');
+    const [industError, setIndustError] = useState('');
 
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
-    const handleChange = (e) =>{
-        setMining_districts(0);
-        setTotal_districts(totalDistricts);
-        console.log(totalDistricts);
-        console.log("mining district reset",mining_districts)
-        console.log("target value",e.target.value)
-        console.log("open distrcits",openDistricts)
-        const targetValue = e.target.value;
-        if (targetValue < total_districts) {
-            setMining_districts(parseInt(e.target.value));
-        } else {console.log("too big")}
+
+    // district handleChange
+
+    const handleChangeMining = (e) =>{
+        const openDistrictCheck = size-totalDistricts+mining_districts;
+        const targetValue = parseInt(e.target.value);
+        if (targetValue <= openDistrictCheck) {
+            setMining_districts(targetValue);
+            setMiningError('');
+        } else {console.log("too big")
+            setMiningError("Mining Districts exceed capacity");
             setMining_districts(0);
+        };
     };
+
+    const handleChangeGenerator = (e) =>{
+        const openDistrictCheck = size-totalDistricts+generator_districts;
+        const targetValue = parseInt(e.target.value);
+        if (targetValue <= openDistrictCheck) {
+            setGenerator_districts(targetValue);
+            setGenError('');
+        } else {console.log("too big")
+            setGenError("Generator Districts exceed capacity");
+            setGenerator_districts(0);
+        };
+    };
+
+    const handleChangeAgriculture = (e) =>{
+        const openDistrictCheck = size-totalDistricts+agriculture_districts;
+        const targetValue = parseInt(e.target.value);
+        if (targetValue <= openDistrictCheck) {
+            setAgriculture_districts(targetValue);
+            setAgriError('');
+        } else {console.log("too big")
+            setAgriError("Agriculture Districts exceed capacity");
+            setAgriculture_districts(0);
+        };
+    };
+
+    const handleChangeIndustrial = (e) =>{
+        const openDistrictCheck = size-totalDistricts+industrial_districts;
+        const targetValue = parseInt(e.target.value);
+        if (targetValue <= openDistrictCheck) {
+            setIndustrial_districts(targetValue);
+            setIndustError('');
+        } else {console.log("too big")
+            setIndustError("Agriculture Districts exceed capacity");
+            setIndustrial_districts(0);
+        };
+    };
+
+    // Post request
 
     const handleSubmit = (e) =>{
         e.preventDefault();
@@ -74,80 +117,90 @@ const AddPlanet = (props) => {
                 <h1>Create a new planet!</h1>
                 <Link to='/dashboard'>Dashboard</Link>
             </div>
-            <div className="row">
-                <form onSubmit = {handleSubmit}>
-                    <div className = 'col'>
-                        <h2>Characteristics</h2>
-                        <label htmlFor="name">Template Name:</label>
-                        <input className="form-control" type="text"
-                        id="name"
-                        onChange = {(e) => setName(JSON.parse(e.target.value))}/>
-                            {errors.name ? <p>{errors.name.message}</p> : null}
+            <div className="row align-items-start border border-dark p-3">
+                <div className = 'col'>
+                    <form onSubmit = {handleSubmit}>
+                            <h2>Characteristics</h2>
+                            <label htmlFor="name">Template Name:</label>
+                            <input className="form-control" type="text"
+                            id="name"
+                            onChange = {(e) => setName(e.target.value)}/>
+                                {errors.name ? <p>{errors.name.message}</p> : null}
 
-                        <label htmlFor="size">Planet Size:</label>
-                        <input className="form-control" type="number"
-                        id="size"
-                        onChange = {(e) => setSize(JSON.parse(e.target.value))}/>
-                            {errors.name ? <p>{errors.size.message}</p> : null}
+                            <label htmlFor="size">Planet Size:</label>
+                            <input className="form-control" type="number"
+                            id="size"
+                            onChange = {(e) => setSize(JSON.parse(e.target.value))}/>
+                                
 
-                        <label htmlFor="designation">Designation:</label>
-                        <select  className="form-control" id="designation" onChange = {(e) => setDesignation(JSON.parse(e.target.value))}>
-                            <option value= "[1,1.25,1,1,1]" >Generator World</option>
-                            <option value='[1.25,1,1,1,1]'>Mining World</option>
-                            <option value='[1,1,1,0,2.25]'>Forge World</option>
-                            <option value='[1,1.25,1,1.1,1.1]'>Industrial World</option>
-                            <option value='[1,1,1,2.25,0]'>Factory World</option>
-                        </select>
-                        <label htmlFor="mining_dist">Mining Districts:</label>
-                        <input className="form-control" type="number"
-                        id="mining_dist"
-                        onChange = {handleChange}/>
-                            {errors.name ? <p>{errors.size.mining_districts}</p> : null}
+                            <label htmlFor="designation">Designation:</label>
+                            <select  className="form-control" id="designation" onChange = {(e) => setDesignation(JSON.parse(e.target.value))}>
+                                <option value= "[1,1.25,1,1,1]" >Generator World</option>
+                                <option value='[1.25,1,1,1,1]'>Mining World</option>
+                                <option value='[1,1,1,0,2.25]'>Forge World</option>
+                                <option value='[1,1.25,1,1.1,1.1]'>Industrial World</option>
+                                <option value='[1,1,1,2.25,0]'>Factory World</option>
+                            </select>
+                            <label htmlFor="mining_dist">Mining Districts:</label>
+                            <input 
+                                className="form-control" 
+                                type="number"
+                                id="mining_dist"
+                                onChange = {handleChangeMining}/>
+                                <p>{miningError}</p>
 
-                        <label htmlFor="generator_dist">Generator Districts:</label>
-                        <input className="form-control" type="number" min = '0' max = {openDistricts}
-                        id="generator_dist"
-                        onChange = {(e) => setGenerator_districts(parseInt(e.target.value))}/>
-                            {errors.name ? <p>{errors.size.generator_districts}</p> : null}
+                            <label htmlFor="generator_dist">Generator Districts:</label>
+                            <input 
+                                className="form-control" 
+                                type="number" 
+                                min = '0' 
+                                id="generator_dist"
+                                onChange = {handleChangeGenerator}/>
+                                <p>{genError}</p>
 
+                            <label htmlFor="agriculture_dist">Agriculture Districts:</label>
+                            <input 
+                                className="form-control" 
+                                type="number" 
+                                min = '0' 
+                                id="agriculture_dist"
+                                onChange = {handleChangeAgriculture}/>
+                                <p>{agriError}</p>
 
-                        <label htmlFor="agriculture_dist">Agriculture Districts:</label>
-                        <input className="form-control" type="number" min = '0' max = {openDistricts}
-                        id="agriculture_dist"
-                        onChange = {(e) => setAgriculture_districts(parseInt(e.target.value))}/>
-                            {errors.name ? <p>{errors.size.agriculture_districts}</p> : null}
+                            <label htmlFor="industrial_dist">Industrial Districts:</label>
+                            <input 
+                                className="form-control" 
+                                type="number" 
+                                min = '0' 
+                                id="industrial_dist"
+                                onChange = {handleChangeIndustrial}/>
+                                <p>{industError}</p>
 
-                        <label htmlFor="industrial_dist">Industrial Districts:</label>
-                        <input className="form-control" type="number" min = '0' max = {openDistricts}
-                        id="industrial_dist"
-                        onChange = {(e) => setIndustrial_districts(parseInt(e.target.value))}/>
-                            {errors.name ? <p>{errors.size.industrial_districts}</p> : null}
-
-                        <button type="submit">Save Template</button>
+                            <button type="submit" disabled={miningError || genError || agriError || industError} >Save Template</button>
+                        </form>
                     </div>
-                </form>
-            </div>
-            <div>
-                <div>
-                    <h3>Minerals</h3>
-                    <p>{minerals}</p>
-                </div>
-                <div>
-                    <h3>Energy</h3>
-                    <p>{energy}</p>
-                </div>
-                <div>
-                    <h3>Food</h3>
-                    <p>{food}</p>
-                </div>
-                <div>
-                    <h3>Consumer Goods</h3>
-                    <p>{consumer_goods}</p>
-                </div>
-                <div>
-                    <h3>Alloys</h3>
-                    <p>{alloys}</p>
-                </div>
+                    <div className = 'col mt-5'>
+                        <div>
+                            <h3>Minerals</h3>
+                            <p>{minerals}</p>
+                        </div>
+                        <div>
+                            <h3>Energy</h3>
+                            <p>{energy}</p>
+                        </div>
+                        <div>
+                            <h3>Food</h3>
+                            <p>{food}</p>
+                        </div>
+                        <div>
+                            <h3>Consumer Goods</h3>
+                            <p>{consumer_goods}</p>
+                        </div>
+                        <div>
+                            <h3>Alloys</h3>
+                            <p>{alloys}</p>
+                        </div>
+                    </div>
             </div>
         </div>
     );
