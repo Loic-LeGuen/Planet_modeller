@@ -6,12 +6,16 @@ const EditPlanet = (props) => {
     const {id} = useParams();
     const [name, setName] =useState('');
     const [size,setSize] =useState(0);
-    const [designation, setDesignation] = useState([1,1.25,1,1,1]);
+    const [designation, setDesignation] = useState(0);
     const [mining_districts, setMining_districts] = useState(0);
     const [generator_districts, setGenerator_districts] = useState(0);
     const [agriculture_districts, setAgriculture_districts] = useState(0);
     const [industrial_districts, setIndustrial_districts] = useState(0);
     const totalDistricts = parseInt(industrial_districts)+parseInt(mining_districts)+parseInt(generator_districts)+parseInt(agriculture_districts)
+
+         //  Generator / Mining / Agriculture/ Forge/ Industrial / Factory
+        // [MINERALS,ENERGY,FOOD,CONSUMER GOODS,ALLOYS]
+        const designationWeights = [[1,1.25,1,1,1],[1.25,1,1,1,1],[1,1,1.25,1,1],[1,1,1,0,1.25],[1,1,1,1.1,1.1],[1,1,1,1.25,0]]
 
     // Get by id request
     
@@ -31,32 +35,15 @@ const EditPlanet = (props) => {
         })
     },[]);
 
-    // Set default value from designation select
 
-    const defaultDesig = () => {
-        if (designation = [1,1.25,1,1,1]) {
-            return "Generator World";
-        } else if (designation = [1.25,1,1,1,1]){
-            return "Mining World";
-        } else if (designation = [1,1,1,0,2.25])    {
-            return "Forge World";
-        } else if (designation = [1,1.25,1,1.1,1.1]) {
-            return "Industrial World";
-        } else {
-            return "Factory World";
-        }
-    };
-        console.log(designation);
-        console.log(defaultDesig);
-    // ARRAY KEY FOR DESIGNATION MODIFIERS
-    // [MINERALS,ENERGY,FOOD,CONSUMER GOODS,CREDITS]
-    // 2 jobs per district * base job output * modifier - district upkeep
 
-    const minerals = mining_districts*2*4*designation[0]-(industrial_districts*6*2);
-    const energy = (generator_districts*2*6*designation[1])-(totalDistricts*2);
-    const food = agriculture_districts*2*6*designation[2];
-    const consumer_goods=industrial_districts*2*6*designation[3];
-    const alloys = industrial_districts*2*3*designation[4];
+    const weightArray = designationWeights[designation]
+
+    const minerals = mining_districts*2*4*weightArray[0]-(industrial_districts*6*2);
+    const energy = (generator_districts*2*6*weightArray[1])-(totalDistricts*2);
+    const food = agriculture_districts*2*6*weightArray[2];
+    const consumer_goods=industrial_districts*2*6*weightArray[3];
+    const alloys = industrial_districts*2*3*weightArray[4];
 
 
     // Front-end error messages
@@ -72,6 +59,10 @@ const EditPlanet = (props) => {
 
 
     // district handleChange
+
+    const handleChangeDesignation = (e) =>{
+        setDesignation(parseInt(e.target.value));
+    };
 
     const handleChangeMining = (e) =>{
         const openDistrictCheck = size-totalDistricts+mining_districts;
@@ -138,7 +129,7 @@ const EditPlanet = (props) => {
         
         .then((res) => {
             console.log(res);
-            navigate('/dashboard');
+            navigate('/');
         })
         .catch((err) => {
             console.log(err.response.data.err.errors);
@@ -150,7 +141,9 @@ const EditPlanet = (props) => {
         <div className = 'container'>
             <div className = 'navbar'>
                 <h1>Edit Planet {name}</h1>
-                <Link to='/dashboard'>Dashboard</Link>
+                <Link to='/'>
+                    <button className="btn btn-primary">Dashboard</button>
+                </Link>
             </div>
             <div className="row align-items-start border border-dark p-3">
                 <div className = 'col'>
@@ -171,12 +164,13 @@ const EditPlanet = (props) => {
                                 
 
                             <label htmlFor="designation">Designation:</label>
-                            <select defaultValue = {defaultDesig} className="form-control" id="designation" onChange = {(e) => setDesignation(JSON.parse(e.target.value))}>
-                                <option value= "[1,1.25,1,1,1]" >Generator World</option>
-                                <option value='[1.25,1,1,1,1]'>Mining World</option>
-                                <option value='[1,1,1,0,2.25]'>Forge World</option>
-                                <option value='[1,1.25,1,1.1,1.1]'>Industrial World</option>
-                                <option value='[1,1,1,2.25,0]'>Factory World</option>
+                            <select default = {designation} className="form-control" id="designation" onChange = {handleChangeDesignation}>
+                                <option value= "0" selected={designation==0} >Generator World</option>
+                                <option value='1'selected={designation==1}>Mining World</option>
+                                <option value='2'selected={designation==2}>Agricultural World</option>
+                                <option value='3'selected={designation==3}>Forge World</option>
+                                <option value='4'selected={designation==4}>Industrial World</option>
+                                <option value='4'selected={designation==4}>Factory World</option>
                             </select>
                             <label htmlFor="mining_dist">Mining Districts:</label>
                             <input 
@@ -217,7 +211,7 @@ const EditPlanet = (props) => {
                                 onChange = {handleChangeIndustrial}/>
                                 <p>{industError}</p>
 
-                            <button type="submit" disabled={miningError || genError || agriError || industError} >Save Changes</button>
+                            <button className="btn btn-primary" type="submit" disabled={miningError || genError || agriError || industError} >Save Changes</button>
                         </form>
                     </div>
                     <div className = 'col mt-5'>

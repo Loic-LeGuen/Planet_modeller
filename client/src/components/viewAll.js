@@ -5,6 +5,8 @@ import {Link, useNavigate,useParams} from 'react-router-dom';
 const Dashboard = () =>{
     const [planets, setPlanets] = useState([]);
     const navigate = useNavigate();
+    const designationName = ['Generator World',"Mining World","Agricultural World","Forge World","Industrial World","Factory World"]
+    //  Generator / Mining / Agriculture/ Forge/ Industrial / Factory
 
     useEffect(()=> {
         axios.get('http://localhost:8000/api/planets')
@@ -18,10 +20,12 @@ const Dashboard = () =>{
     },[]);
 
     const deleteFilter = (idFromBelow) => {
-        axios.delete(`https://localhost:8000/api/planets/${idFromBelow}`)
+        axios.delete(`http://localhost:8000/api/planets/${idFromBelow}`)
         .then((res)=> {
             console.log(res.data);
-            navigate('/dashboard');
+            const updatedPlanets = planets.filter((planet)=> {
+                return planet._id !== idFromBelow});
+                setPlanets(updatedPlanets);
         })
         .catch((err)=> {
             console.log(err);
@@ -32,6 +36,9 @@ const Dashboard = () =>{
         <div className = 'container'>
             <div className = "navbar">
                 <h1>Welcome! Check out these Planets!</h1>
+                <Link to="/planets/add">
+                    <button className="btn btn-primary">Add a new planet!</button>
+                </Link>
             </div>
             <div className = "rox mx-auto mt-3">
                 <div className = "col-8">
@@ -40,11 +47,11 @@ const Dashboard = () =>{
                             <tr>
                                 <th scope="col">Name</th>
                                 <th scope="col">Size</th>
-                                <th scope="col">Mins</th>
-                                <th scope="col">Creds</th>
-                                <th scope="col">Food</th>
-                                <th scope="col">Alloys</th>
-                                <th scope="col">CGs</th>
+                                <th scope="col">Designation</th>
+                                <th scope="col">Mineral Districts</th>
+                                <th scope="col">Generator Districts</th>
+                                <th scope="col">Agriculture Districts</th>
+                                <th scope="col">Industrial Districts</th>
                                 <th scope="col">Modify</th>
                                 <th scope="col">Delete</th>
                             </tr>
@@ -52,21 +59,21 @@ const Dashboard = () =>{
                         <tbody>
                             {planets.map((planet,index) =>{
                                 return (
-                                    <tr>
+                                    <tr key={planet._id}>
                                         <td>{planet.name}</td>
                                         <td>{planet.size}</td>
-                                        <td>{planet.designation}</td>
+                                        <td>{designationName[planet.designation]}</td>
                                         <td>{planet.mining_districts}</td>
                                         <td>{planet.generator_districts}</td>
                                         <td>{planet.agriculture_districts}</td>
                                         <td>{planet.industrial_districts}</td>
                                         <td>
                                             <Link to = {`/planets/edit/${planet._id}`}>
-                                                <button>Edit</button>
+                                                <button className="btn btn-primary">Edit</button>
                                             </Link>
                                         </td>
                                         <td>
-                                            <button onCLick = {() => deleteFilter({planet._id})}>Delete</button>
+                                            <button className="btn btn-danger" onClick = {() => deleteFilter(planet._id)}>Delete</button>
                                         </td>
                                     </tr>
                                 )
